@@ -7,6 +7,7 @@ services:
       POSTGRES_DB: concourse
       POSTGRES_USER: concourse_user
       POSTGRES_PASSWORD: concourse_pass
+      PGDATA: /database
     logging:
       driver: "json-file"
       options:
@@ -16,10 +17,13 @@ services:
   web:
     image: concourse/concourse
     command: web
-    links: [db]
-    depends_on: [db]
+    links: [db, vault]
+    depends_on: [db, vault]
     ports: ["8080:8080"]
-    volumes: ["./keys/web:/concourse-keys"]
+    volumes: 
+    - "./keys/web:/concourse-keys"
+    - "./certs:/certs"
+    # restart: unless-stopped # required so that it retries until conocurse-db comes up
     environment:
       CONCOURSE_EXTERNAL_URL: http://localhost:8080
       CONCOURSE_POSTGRES_HOST: db
@@ -28,6 +32,12 @@ services:
       CONCOURSE_POSTGRES_DATABASE: concourse
       CONCOURSE_ADD_LOCAL_USER: test:test
       CONCOURSE_MAIN_TEAM_LOCAL_USER: test
+      CONCOURSE_VAULT_URL: https://vault:8200
+      CONCOURSE_VAULT_PATH_PREFIX: /concourse
+      CONCOURSE_VAULT_AUTH_BACKEND: cert
+      CONCOURSE_VAULT_CA_CERT: /certs/rootca.cert
+      CONCOURSE_VAULT_CLIENT_CERT: /certs/concourse/concourse.cert
+      CONCOURSE_VAULT_CLIENT_KEY: /certs/concourse/concourse.key
     logging:
       driver: "json-file"
       options:
@@ -49,3 +59,12 @@ services:
       options:
         max-file: "5"
         max-size: "10m"
+
+  vault:
+    image: "vault"
+    cap_add:
+      - IPC_LOCK
+    ports: ["8200:8200"]
+    volumes: 
+      - ./certs/vault:/vault/config
+    command: vault server -config /vault/config/vault.hcl 

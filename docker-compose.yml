@@ -23,7 +23,6 @@ services:
     volumes: 
     - "./keys/web:/concourse-keys"
     - "./certs:/certs"
-    # restart: unless-stopped # required so that it retries until conocurse-db comes up
     environment:
       CONCOURSE_EXTERNAL_URL: http://localhost:8080
       CONCOURSE_POSTGRES_HOST: db
@@ -54,6 +53,7 @@ services:
     stop_signal: SIGUSR2
     environment:
       CONCOURSE_TSA_HOST: web:2222
+      CONCOURSE_GARDEN_DNS_PROXY_ENABLE: "true"
     logging:
       driver: "json-file"
       options:

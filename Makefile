@@ -89,14 +89,14 @@ vault_unseal: keys/vault/vaultkeys.txt
 
 vault_postsetup:
 	VAULT_TOKEN=$$(grep 'Initial Root Token:' keys/vault/vaultkeys.txt | awk '{print $$NF}') \
-		vault secrets enable -path=concourse -description="concourse CICD secrets" kv
+		vault secrets enable -tls-skip-verify -path=concourse -description="concourse CICD secrets" kv
 
 # if the policy is altered also have to restart the vault and web container
 generate_vault_concourse_policy: ./certs/vault/vault_concourse_policy.hcl
 	VAULT_TOKEN=$$(grep 'Initial Root Token:' keys/vault/vaultkeys.txt | awk '{print $$NF}') \
-		vault auth enable cert
+		vault auth enable -tls-skip-verify cert
 	VAULT_TOKEN=$$(grep 'Initial Root Token:' keys/vault/vaultkeys.txt | awk '{print $$NF}') \
-		vault write auth/cert/certs/concourse \
+		vault write -tls-skip-verify auth/cert/certs/concourse \
 			policies=concourse \
 			certificate=@certs/rootca.cert
 
@@ -112,21 +112,21 @@ export VAULT_CONCOURSE_POLICY
 ./certs/vault/vault_concourse_policy.hcl:
 	echo "$$VAULT_CONCOURSE_POLICY" > $@
 	VAULT_TOKEN=$$(grep 'Initial Root Token:' keys/vault/vaultkeys.txt | awk '{print $$NF}') \
-		vault policy write concourse $@
+		vault policy write -tls-skip-verify concourse $@
 
 # if the policy is altered also have to restart the vault and web container
 generate_vault_manager_policy: ./certs/vault/vault_manager_policy.hcl
 	### enable certificate based login
 	# 'vault auth enable cert' already done for concourse policy above
 	VAULT_TOKEN=$$(grep 'Initial Root Token:' keys/vault/vaultkeys.txt | awk '{print $$NF}') \
-		vault write auth/cert/certs/manager \
+		vault write -tls-skip-verify auth/cert/certs/manager \
 			policies=manager \
 			certificate=@certs/rootca.cert
 	### enable user/pass based login
 	VAULT_TOKEN=$$(grep 'Initial Root Token:' keys/vault/vaultkeys.txt | awk '{print $$NF}') \
-		vault auth enable userpass
+		vault auth enable -tls-skip-verify userpass
 	VAULT_TOKEN=$$(grep 'Initial Root Token:' keys/vault/vaultkeys.txt | awk '{print $$NF}') \
-		vault write auth/userpass/users/manager \
+		vault write -tls-skip-verify auth/userpass/users/manager \
 			password=manager \
 			policies=manager
 
@@ -209,7 +209,7 @@ export VAULT_MANAGER_POLICY
 ./certs/vault/vault_manager_policy.hcl:
 	echo "$$VAULT_MANAGER_POLICY" > $@
 	VAULT_TOKEN=$$(grep 'Initial Root Token:' keys/vault/vaultkeys.txt | awk '{print $$NF}') \
-		vault policy write manager $@
+		vault policy write -tls-skip-verify manager $@
 
 #######################
 ###  test targets  ####

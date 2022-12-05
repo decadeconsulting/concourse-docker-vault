@@ -218,7 +218,7 @@ state="Bavaria"
 location="Munich"
 organization="Personal Security"
 organizationalUnit="IT Department"
-email="Dirk.Hoffmann.Spam@gmail.com"
+email="test@gmail.com"
 bits=2048
 days=730 # two years
 encryptPrivateKey="-nodes" # define empty to encrypt private keys
@@ -302,7 +302,7 @@ ls -la $destFolder
 # O = Personal Security
 # OU = IT Department
 # CN = www.company.com
-# emailAddress  = Dirk.Hoffmann.Spam@gmail.com
+# emailAddress  = test@test.com
 # [v3_req]
 # keyUsage = keyEncipherment, dataEncipherment
 # extendedKeyUsage = serverAuth

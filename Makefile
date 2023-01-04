@@ -90,7 +90,7 @@ vault_unseal: keys/vault/vaultkeys.txt
 
 vault_postsetup:
 	VAULT_TOKEN=$$(grep 'Initial Root Token:' keys/vault/vaultkeys.txt | awk '{print $$NF}') \
-		vault secrets enable -tls-skip-verify -path=concourse -description="concourse CICD secrets" kv
+		vault secrets enable -tls-skip-verify -path=concourse -description="concourse CICD secrets" kv-v2
 
 # if the policy is altered also have to restart the vault and web container
 generate_vault_concourse_policy: ./certs/vault/vault_concourse_policy.hcl

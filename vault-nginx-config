@@ -1,0 +1,59 @@
+upstream vault {
+        server 127.0.0.1:8200;
+}
+
+server {
+
+
+	root /var/www/html;
+
+	index index.html index.htm index.nginx-debian.html;
+
+	server_name vault.DNS.com;
+
+
+        location / {
+             include proxy_params;
+             proxy_http_version 1.1;
+             proxy_read_timeout 90;
+
+             #proxy_set_header Upgrade $http_upgrade;
+             #proxy_set_header Connection "upgrade";
+
+             proxy_pass https://vault;
+             proxy_ssl_trusted_certificate /home/azureuser/concourse-docker-vault/certs/rootca.cert;
+             proxy_ssl_certificate /home/azureuser/concourse-docker-vault/certs/vault/vault.cert;
+             proxy_ssl_certificate_key /home/azureuser/concourse-docker-vault/certs/vault/vault.key;
+             proxy_ssl_verify on;
+             proxy_ssl_session_reuse on;
+         }
+
+         location ~ /.well-known {
+             allow all;
+         }
+
+
+
+    listen 443 ssl; # managed by Certbot
+    ssl_certificate /etc/letsencrypt/live/vault.DNS.com/fullchain.pem; # managed by Certbot
+    ssl_certificate_key /etc/letsencrypt/live/vault.DNS.com/privkey.pem; # managed by Certbot
+    include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
+
+}
+
+
+server {
+    if ($host = vault.DNS.com) {
+        return 301 https://$host$request_uri;
+    } # managed by Certbot
+
+
+	listen 80;
+	listen [::]:80;
+
+	server_name vault.DNS.com;
+    return 404; # managed by Certbot
+
+
+}

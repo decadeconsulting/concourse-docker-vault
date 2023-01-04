@@ -67,6 +67,7 @@ listener "tcp" {
 	tls_cert_file = "/vault/config/vault.cert"
 	tls_key_file = "/vault/config/vault.key"
 }
+api_addr = "https://0.0.0.0:8200"
 endef
 export HCL
 

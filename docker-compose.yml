@@ -24,7 +24,7 @@ services:
     - "./keys/web:/concourse-keys"
     - "./certs:/certs"
     environment:
-      CONCOURSE_EXTERNAL_URL: http://localhost:8080
+      CONCOURSE_EXTERNAL_URL: https://concourse.DNS.com
       CONCOURSE_POSTGRES_HOST: db
       CONCOURSE_POSTGRES_USER: concourse_user
       CONCOURSE_POSTGRES_PASSWORD: concourse_pass
